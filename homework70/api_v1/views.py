@@ -44,15 +44,15 @@ class ArticleView(APIView):
     def get(self, request, pk=None, *args, **kwargs):
         if pk:
             article = get_object_or_404(Article, pk=pk)
-            serializer = ArticleModelSerializer(article)
+            serializer = ArticleSerializer(article)
             return Response(serializer.data)
         else:
             articles = Article.objects.order_by('-created_at')
-            articles_list = ArticleModelSerializer(articles, many=True).data
+            articles_list = ArticleSerializer(articles, many=True).data
             return Response(articles_list)
     def put(self, request, pk, *args, **kwargs):
         article = self.get_object(pk)
-        serializer = ArticleModelSerializer(article, data=request.data)
+        serializer = ArticleSerializer(article, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
