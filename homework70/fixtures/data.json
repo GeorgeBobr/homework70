@@ -1,0 +1,20 @@
+[
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$l9UKA0UXZ3CE7kjntO4kX4$lHmxkw1Ljrr/3zrFN9Gn89a9rUQq/6Zm/UWAMnjpwuc=",
+    "last_login": "2024-08-26T12:32:08.746Z",
+    "is_superuser": false,
+    "username": "Pizdaliz",
+    "first_name": "Huebes",
+    "last_name": "qwerty",
+    "email": "pid@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2024-08-26T12:08:56.767Z",
+    "groups": [],
+    "user_permissions": []
+  }
+}
+]
