@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from webapp.models import Article
-from api_v1.serializers import ArticleSerializer, ArticleModelSerializer
+from api_v1.serializers import ArticleSerializer, ArticleSerializer
 
 
 @ensure_csrf_cookie
