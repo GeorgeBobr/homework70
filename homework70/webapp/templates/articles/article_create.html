@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Article{% endblock %}
+{% block menu %}<a class="nav-link" aria-current="page"  href="{% url 'webapp:index' %}">На главную</a>{% endblock %}
+
+{% block content %}
+<h1>Create Article</h1>
+    
+    {% include 'partial/form.html' with value_submit='Create' form_method='post'  %}
+
+{% endblock %}
