@@ -1,44 +1,47 @@
-from django.shortcuts import redirect, reverse
-from django.contrib.auth import login, get_user_model
-from django.views.generic import CreateView, DetailView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from accounts.forms import MyUserCreationForm, UserChangeForm, ProfileChangeForm
-from django.core.paginator import Paginator
+from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.contrib.auth.views import PasswordChangeView
+from django.core.paginator import Paginator
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.views.generic import CreateView, DetailView, UpdateView
 
+from accounts.forms import MyUserCreationForm, UserChangeForm, ProfileChangeForm
 from accounts.models import Profile
 
+User = get_user_model()
 
-class RegisterView(CreateView):
-    model = get_user_model()
+
+class RegistrationView(CreateView):
     form_class = MyUserCreationForm
-    template_name = 'user_create.html'
+    template_name = "registration.html"
+    model = User
 
     def form_valid(self, form):
         user = form.save()
+        Profile.objects.create(user=user)
         login(self.request, user)
-        return redirect(self.get_success_url())
+        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        next_page = self.request.GET.get('next')
-        if not next_page:
-            next_page = self.request.POST.get('next')
-        if not next_page:
-            next_page = reverse('webapp:index')
+        next_url = self.request.GET.get('next')
+        if not next_url:
+            next_url = self.request.POST.get('next')
+        if not next_url:
+            next_url = reverse('webapp:articles')
+        return next_url
 
-        return next_page
 
-
-class UserDetailView(LoginRequiredMixin, DetailView):
-    model = get_user_model()
-    template_name = 'user_detail.html'
-    context_object_name = 'user_obj'
-    paginate_related_by = 5
-    paginate_related_orphans = 0
+class ProfileView(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = "user_profile.html"
+    context_object_name = "user_obj"
+    paginate_related_by = 3
 
     def get_context_data(self, **kwargs):
         articles = self.object.articles.order_by('-created_at')
-        paginator = Paginator(articles, self.paginate_related_by, orphans=self.paginate_related_orphans)
+        paginator = Paginator(articles, self.paginate_related_by)
         page_number = self.request.GET.get('page', 1)
         page = paginator.get_page(page_number)
         kwargs['page_obj'] = page
@@ -47,13 +50,13 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         return super().get_context_data(**kwargs)
 
 
-class UserChangeView(UserPassesTestMixin, UpdateView):
+class UserChangeView(PermissionRequiredMixin, UpdateView):
     model = get_user_model()
     form_class = UserChangeForm
     template_name = 'user_change.html'
     context_object_name = 'user_obj'
 
-    def test_func(self):
+    def has_permission(self):
         return self.request.user == self.get_object()
 
     def get_context_data(self, **kwargs):
@@ -80,22 +83,18 @@ class UserChangeView(UserPassesTestMixin, UpdateView):
         return self.render_to_response(context)
 
     def get_profile_form(self):
-        profile, _ = Profile.objects.get_or_create(user=self.object)
-        form_kwargs = {'instance': profile}
+        form_kwargs = {'instance': self.object.profile}
         if self.request.method == 'POST':
             form_kwargs['data'] = self.request.POST
             form_kwargs['files'] = self.request.FILES
         return ProfileChangeForm(**form_kwargs)
 
     def get_success_url(self):
-        return reverse('accounts:user_detail', kwargs={'pk': self.object.pk})
+        return reverse('accounts:profile', kwargs={'pk': self.object.pk})
 
 
-class UserPasswordChangeView(UserPassesTestMixin, PasswordChangeView):
+class UserPasswordChangeView(PasswordChangeView):
     template_name = 'user_password_change.html'
 
-    def test_func(self):
-        return self.request.user.pk == self.kwargs.get('pk')
-
     def get_success_url(self):
-        return reverse('accounts:user_detail', kwargs={'pk': self.request.user.pk})
+        return reverse('accounts:profile', kwargs={'pk': self.request.user.pk})
