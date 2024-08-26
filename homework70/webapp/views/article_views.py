@@ -56,7 +56,6 @@ class ArticleView(DetailView):
         context['comments'] = self.object.comments.order_by('-created_at')
         return context
 
-
 class ArticleCreateView(LoginRequiredMixin, CreateView):
     template_name = 'articles/article_create.html'
     model = Article
