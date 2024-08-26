@@ -60,7 +60,6 @@ class ArticleView(APIView):
 class ArticleCreateView(LoginRequiredMixin, CreateView):
     template_name = 'articles/article_create.html'
     model = Article
-    # fields = ['title', 'content', 'author', 'tags']
     form_class = ArticleForm
 
     def form_valid(self, form):
