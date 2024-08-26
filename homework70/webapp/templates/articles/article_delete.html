@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Article{% endblock %}
+{% block menu %}
+    {% if request.user.is_authenticated %}
+    <a class="nav-link" aria-current="page"  href="{% url 'webapp:index' %}">На главную</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<h1>Delete Article</h1>
+
+    <h3>Вы уверены, что хотите удалить статью "{{ article.title }}"?</h3>
+
+<form action="" method="post">
+    {% csrf_token %}
+    <input type="submit" value="ДА"/>
+</form>
+    <a href="{% url 'webapp:article_view' pk=article.pk %}">Нет</a>
+
+{% endblock %}
