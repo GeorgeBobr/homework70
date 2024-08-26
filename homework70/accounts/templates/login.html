@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход{% endblock %}
+{% block menu %}<a class="nav-link" aria-current="page"  href="{% url 'webapp:index' %}">На главную</a>{% endblock %}
+
+{% block content %}
+
+    <h1 style="text-align: center">Вход</h1>
+
+    <form action="" method="post" class="text-center">
+        {% csrf_token %}
+        {% if has_error %}
+            <p class="form-error">Неверное имя пользователя или пароль.</p>
+        {% endif %}
+        <div class="mb-3 ">
+            <label for="username" class="form-label">Имя пользователя:</label>
+            <input type="text" class="form-control mx-auto" id="username" name="username" style="max-width: 300px">
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Пароль:</label>
+            <input type="password" class="form-control mx-auto" id="password" name="password"  style="max-width: 300px">
+        </div>
+        <button type="submit" class="btn btn-primary">Войти</button>
+    </form>
+{% endblock %}
