@@ -30,4 +30,10 @@ class CommentSerializer(serializers.Serializer):
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['id', 'article', 'author', 'text', 'created_at', 'updated_at']
+        fields = ['id', 'article', 'text', 'author', 'created_at', 'updated_at']
+        read_only_fields = ['author']
+
+    def validate_text(self, text):
+        if not text:
+            raise serializers.ValidationError("Text cannot be empty")
+        return text
