@@ -1,9 +1,7 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from webapp.models import Comment
-
 from webapp.models import Article
-
 
 class ArticleSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
@@ -42,8 +40,4 @@ class ArticleModelSerializer(serializers.ModelSerializer):
             raise ValidationError("Title must be at least 8 characters")
         return title
 
-class CommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = ['id', 'article', 'author', 'text', 'created_at', 'updated_at']
 
