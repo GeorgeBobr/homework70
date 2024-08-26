@@ -4,9 +4,14 @@ from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
 
 from django.db.models import Q
+from rest_framework import status
+from rest_framework.response import Response
+
 from webapp.models import Article
 from webapp.forms import ArticleForm, SimpleSearchForm
 from django.views.generic import View, FormView, ListView, DetailView, CreateView, UpdateView, DeleteView
+from api_v1.serializers import ArticleSerializer
+from rest_framework.views import APIView
 
 
 class IndexView(ListView):
@@ -46,16 +51,11 @@ class IndexView(ListView):
             context['search_value'] = self.search_value
         return context
 
-
-class ArticleView(DetailView):
-    model = Article
-    template_name = 'articles/article_view.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['comments'] = self.object.comments.order_by('-created_at')
-        return context
-
+class ArticleView(APIView):
+    def get(self, request, pk):
+        article = get_object_or_404(Article, pk=pk)
+        serializer = ArticleSerializer(article)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class ArticleCreateView(LoginRequiredMixin, CreateView):
     template_name = 'articles/article_create.html'
@@ -70,48 +70,18 @@ class ArticleCreateView(LoginRequiredMixin, CreateView):
         form.save_m2m()
         return redirect('webapp:article_view', pk=self.article.pk)
 
-    # def get_success_url(self):
-    #     return reverse('webapp:article_view', kwargs={'pk': self.object.pk})
+class ArticleUpdateView(APIView):
+    def put(self, request, pk):
+        article = get_object_or_404(Article, pk=pk)
+        serializer = ArticleSerializer(article, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class ArticleDeleteView(APIView):
+    def delete(self, request, pk):
+        article = get_object_or_404(Article, pk=pk)
+        article.delete()
+        return Response({'id': pk}, status=status.HTTP_204_NO_CONTENT)
 
-class ArticleUpdateView(PermissionRequiredMixin, UpdateView):
-    template_name = 'articles/article_update.html'
-    model = Article
-    form_class = ArticleForm
-    permission_required = 'webapp.change_article'
-
-    def has_permission(self):
-        return super().has_permission() or self.request.user == self.get_object().author
-
-    # def dispatch(self, request, *args, **kwargs):
-    #     self.article = self.get_object()
-    #     return super().dispatch(request, *args, **kwargs)
-
-    # def get_object(self):
-    #     return get_object_or_404(Article, pk=self.kwargs.get('pk'))
-
-    # def get_form_kwargs(self):
-    #     kwargs = super().get_form_kwargs()
-    #     kwargs['instance'] = self.article
-    #     return kwargs
-
-    # def form_valid(self, form):
-    #     form.save()
-    #     return redirect('webapp:article_view', pk=self.article.pk)
-
-
-class ArticleDeleteView(UserPassesTestMixin, DeleteView):
-    template_name = 'articles/article_delete.html'
-    model = Article
-    success_url = reverse_lazy('webapp:index')
-
-    def test_func(self):
-        return self.request.user.has_perm('webapp.delete_article') or self.request.user == self.get_object().author
-    # def get(self, request, *args, **kwargs):
-    #     article = get_object_or_404(Article, pk=kwargs.get('pk'))
-    #     return render(request, 'articles/article_delete.html', {'article': article})
-    #
-    # def post(self, request, *args, **kwargs):
-    #     article = get_object_or_404(Article, pk=kwargs.get('pk'))
-    #     article.delete()
-    #     return redirect('webapp:index')
