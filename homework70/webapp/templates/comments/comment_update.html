@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Comment{% endblock %}
+{% block menu %}<a class="nav-link" aria-current="page"  href="{% url 'webapp:index' %}">На главную</a>{% endblock %}
+
+{% block content %}
+<h1>Update Comment</h1>
+
+    {% include 'partial/form.html' with value_submit='Update'  form_method='post' %}
+
+{% endblock %}
