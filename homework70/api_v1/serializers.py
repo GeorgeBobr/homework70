@@ -29,15 +29,15 @@ class ArticleSerializer(serializers.Serializer):
         return instance
 
 
-class ArticleModelSerializer(serializers.ModelSerializer):
+class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
-        fields = ['id', 'title', 'content', 'author', 'tags', 'created_at', 'updated_at']
+        fields = ['id', 'title', 'content', 'author', 'created_at', 'updated_at']
         read_only_fields = ['author']
 
     def validate_title(self, title):
         if len(title) < 8:
-            raise ValidationError("Title must be at least 8 characters")
+            raise serializers.ValidationError("Title must be at least 8 characters")
         return title
 
 
