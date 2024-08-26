@@ -1,0 +1,33 @@
+    {% if is_paginated %}
+    	{% include 'partial/pagination.html' %}
+    {% endif %}
+
+    <div class="row row-cols-3">
+
+        {% for article in articles %}
+            <div class="col">
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ article.title }}</h5>
+                        <h6 class="card-subtitle mb-2 text-body-secondary">{{ article.author }}</h6>
+                        <p class="card-text">{{ article.content }}</p>
+                        <p class="card-text">Tags: {% for tag in article.tags.all %}
+                            {{ tag.name }}{% if forloop.last %}.{% else %}, {% endif %}
+                        {% endfor %}
+                        </p>
+                        <a href="{{ article.get_absolute_url }}" class="card-link">Подробнее...</a>
+                    {% if perms.webapp.change_article or article.author == request.user %}
+                        <a href="{% url 'webapp:article_update_view' pk=article.pk %}" class="card-link">Редактировать</a>
+                    {% endif %}
+
+                    {% if perms.webapp.delete_article or article.author == request.user %}
+                        <a href="{% url 'webapp:article_delete_view' pk=article.pk %}" class="card-link">Удалить</a>
+                    {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p>Нет статей</p>
+
+        {% endfor %}
+    </div>
