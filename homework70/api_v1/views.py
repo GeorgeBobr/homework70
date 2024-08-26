@@ -8,9 +8,9 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from webapp.models import Article
-from api_v1.serializers import ArticleSerializer, ArticleSerializer
-
+from webapp.models import Article, Comment
+from api_v1.serializers import ArticleSerializer
+from api_v1.comment_serializers import CommentSerializer
 
 @ensure_csrf_cookie
 def get_token_view(request, *args, **kwargs):
@@ -32,11 +32,7 @@ def json_echo_view(request, *args, **kwargs):
 class ArticleView(APIView):
 
     def post(self, request, *args, **kwargs):
-        serializer = ArticleModelSerializer(data=request.data)
-        # if serializer.is_valid():
-        #     article = serializer.save()
-        #     return JsonResponse(serializer.data, safe=False)
-        # return JsonResponse({'error': serializer.errors}, status=400)
+        serializer = ArticleSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
@@ -62,3 +58,34 @@ class ArticleView(APIView):
         article_id = article.pk
         article.delete()
         return Response({"deleted_article_id": article_id}, status=status.HTTP_204_NO_CONTENT)
+
+class CommentView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        serializer = CommentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def get(self, request, pk=None, *args, **kwargs):
+        if pk:
+            comment = get_object_or_404(Comment, pk=pk)
+            serializer = CommentSerializer(comment)
+            return Response(serializer.data)
+        else:
+            comments = Comment.objects.order_by('-created_at')
+            comments_list = CommentSerializer(comments, many=True).data
+            return Response(comments_list)
+
+    def put(self, request, pk, *args, **kwargs):
+        comment = get_object_or_404(Comment, pk=pk)
+        serializer = CommentSerializer(comment, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    def delete(self, request, pk, *args, **kwargs):
+        comment = get_object_or_404(Comment, pk=pk)
+        comment_id = comment.pk
+        comment.delete()
+        return Response({"deleted_comment_id": comment_id}, status=status.HTTP_204_NO_CONTENT)
