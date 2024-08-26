@@ -29,13 +29,13 @@ class RegistrationView(CreateView):
         if not next_url:
             next_url = self.request.POST.get('next')
         if not next_url:
-            next_url = reverse('webapp:articles')
+            next_url = reverse('webapp:index')
         return next_url
 
 
 class ProfileView(LoginRequiredMixin, DetailView):
     model = User
-    template_name = "user_profile.html"
+    template_name = "user_detail.html"
     context_object_name = "user_obj"
     paginate_related_by = 3
 
