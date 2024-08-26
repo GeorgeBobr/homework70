@@ -13,6 +13,6 @@ urlpatterns = [
     path('article/<int:pk>/update/', ArticleUpdateView.as_view(), name='article_update_view'),
     path('article/<int:pk>/delete/', ArticleDeleteView.as_view(), name='article_delete_view'),
     path('article/<int:pk>/comment/add/', CommentCreateView.as_view(), name='comment_add'),
-    path('comment/<int:pk>/update/', CommentUpdateView.as_view(), name='comment_update_view'),
-    path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment_delete_view'),
+    path('comment/<int:pk>/update/', CommentUpdateView.as_view(), name='comment_update'),
+    path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment_delete'),
 ]
